@@ -8,11 +8,11 @@ public class GameController {
 
     //per iniziare una nuova partita
     public GameController() {
-        this.gameState = gameState;
+        this.gameState = new GameState();
     }
 
     //per riprendere una partita salvata
-    public GameController(GameState gamestate) {
+    public GameController(GameState gameState) {
         if (gameState == null) {
             throw new IllegalArgumentException("Lo stato del gioco non può essere nullo");
         }
@@ -40,4 +40,7 @@ public class GameController {
         //uso il metodo già creato per verificare se il personaggio è ancora vivo
         return !gameState.getPlayer().isAlive();
     }
+
+    public GameState getGameState() { return gameState; }
+
 }
