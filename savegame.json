@@ -1,0 +1,13 @@
+{
+  "player": {
+    "health": 100,
+    "hunger": 40,
+    "thirst": 40,
+    "energy": 100
+  },
+  "inventory": {
+    "items": []
+  },
+  "currentWeather": "RAINY",
+  "currentDay": 5
+}

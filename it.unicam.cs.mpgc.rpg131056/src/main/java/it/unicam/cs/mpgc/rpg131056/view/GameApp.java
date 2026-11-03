@@ -1,5 +1,6 @@
 package it.unicam.cs.mpgc.rpg131056.view;
 
+import it.unicam.cs.mpgc.rpg131056.model.Modalita;
 import it.unicam.cs.mpgc.rpg131056.controller.GameController;
 import it.unicam.cs.mpgc.rpg131056.persistence.JsonSaveManager;
 import it.unicam.cs.mpgc.rpg131056.persistence.SaveManager;
@@ -11,11 +12,13 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import java.io.File;
 
 public class GameApp extends Application {
     //la GUI si affida a questi due attributi per il caricamento e il funzionamento del gioco
     private GameController controller;
     private SaveManager saveManager;
+    private Modalita modalita;
 
     // Componenti della GUI che dovremo aggiornare durante il gioco
     private Label lblDay; //etichette per giorno e meteo
@@ -24,13 +27,25 @@ public class GameApp extends Application {
     private ProgressBar barHunger;
     private ProgressBar barThirst;
     private TextArea txtLog; //un'area di testo multiriga dove poter scrivere a schermo ciò che succede nel gioco
+    private Button btnNextTurn;
+    private Button btnSave;
+    private Button btnLoad;
+
+    private void modalitaIniziale() { 
+        if (new File("savegame.json").exists()) {
+            modalita = Modalita.AVVIO_CON_JSON;
+        } else {
+            modalita = Modalita.INIZIO_PARTITA;
+            } 
+    }
 
     @Override
     public void start(Stage primaryStage) {
         // Inizializziamo il controller e la persistenza
         this.controller = new GameController();
         this.saveManager = new JsonSaveManager();
-
+        modalitaIniziale();
+        
         BorderPane root = new BorderPane(); //divide lo schermo in 5 zone, N, S, E, O, Centro
         root.setPadding(new Insets(15));
 
@@ -78,7 +93,7 @@ public class GameApp extends Application {
         //posizione l'HBox nella griglia con questi valori:
         // 0 = parte dalla colonna sinistra
         // 0 = parte dalla riga 0 in alto
-        // 6 = si estende su 6 righe
+        // 6 = si estende su 6 colonne
         // 1 = occupa 1 riga in altezza
         grid.add(topInfo, 0,0,6,1);
 
@@ -107,31 +122,71 @@ public class GameApp extends Application {
         HBox box = new HBox(10); //crea la barra inferiore
         box.setAlignment(Pos.CENTER); //la posiziona centralmente
 
-        Button btnNextTurn = new Button("Passa Turno"); //creo i 3 bottoni che inserisco poi nell'HBox in basso
-        Button btnSave = new Button("Salva Partita");
-        Button btnLoad = new Button("Carica Partita");
+        btnNextTurn = new Button("Passa Turno"); //creo i 3 bottoni che inserisco poi nell'HBox in basso
+        btnSave = new Button("Salva Partita");
+        btnLoad = new Button("Carica Partita");
+        
+        btnNextTurn.setOnAction(e -> { //lambda expression
+            controller.nextTurn();
+            updateUI();
 
-        // Per ora i pulsanti sono presenti ma non ancora collegati alle azioni
-        box.getChildren().addAll(btnNextTurn, btnSave, btnLoad);
+            var state = controller.getGameState();
+            var player = state.getPlayer();
+            txtLog.appendText("Turno passato. Giorno: " + 
+            state.getCurrentDay() + ", Meteo: " + state.getCurrentWeather() + "\n");
+            
+            if (player.getHealth() <= 0 || player.getHunger() >= 100 || player.getThirst() >= 100) {
+                txtLog.appendText("Game Over! Sei morto, non puoi proseguire.\n");
+            }
+        });
+
+        btnSave.setOnAction(e -> {
+            try {
+                saveManager.save(controller.getGameState(), "savegame.json");
+                txtLog.appendText(" Partita salvata con successo.\n");
+                updateUI();
+            } catch (Exception ex) {
+                txtLog.appendText(" Errore durante il salvataggio della partita: " + ex.getMessage() + "\n");
+            }
+        }); 
+
+        btnLoad.setOnAction(e -> {
+            try {
+                var loadedState = saveManager.load("savegame.json");
+                controller.setGameState(loadedState);
+                updateUI();
+                txtLog.appendText(" Partita caricata con successo.\n");
+            } catch (Exception ex) {
+                txtLog.appendText(" Errore nel caricamento: file non trovato o corrotto: " + ex.getMessage() + "\n");
+           }
+
+    });
         /*getChildren inizialmente è vuoto perché HBox in basso non ha figli al suo interno, è vuoto
         * poi inserisco 3 figli, i 3 bottoni che ho creato, e mi vengono mostrati con lo stesso
-        * ordine con cui li ho inseriti*/
-
-        return box;
+        * ordine con cui li ho inseriti*/ 
+       box.getChildren().addAll(btnNextTurn, btnSave, btnLoad);
+       return box;
     }
 
     private void updateUI() { //fa da ponte tra la GUI e il backend del gioco
         var state = controller.getGameState();
+        var player = state.getPlayer();
+        
         lblDay.setText("Giorno: " + state.getCurrentDay()); //restituisce il giorno e il meteo istanziati in GameState
         lblWeather.setText("Meteo: " + state.getCurrentWeather());
-
-        //le ProgressBar in JavaFX usano valori decimali tra 0.0 e 1.0, serve convertirle
-        barHealth.setProgress(state.getPlayer().getHealth() / 100.0);
-        barHunger.setProgress(state.getPlayer().getHunger() / 100.0);
-        barThirst.setProgress(state.getPlayer().getThirst() / 100.0);
-    }
+        
+        //le ProgressBar in JavaFX usano valori decimali tra 0.0 e 1.0, serve convertirle perché i valori di salute, fame e sete sono tra 0 e 100
+        barHealth.setProgress(player.getHealth() / 100.0); //100.0 perché altrimenti la divisione di 2 interi da come resto 0, azzerando la barra
+        barHunger.setProgress(player.getHunger() / 100.0);
+        barThirst.setProgress(player.getThirst() / 100.0);
+        
+        //devo modificare qua sotto tutto lo pseudocodice della tabella di claude
+        
+}
 
     public static void main(String[] args) {
         launch(args);
     }
 }
+
+//saveFile.delete(); --> IMPORTANTE PER DOPO

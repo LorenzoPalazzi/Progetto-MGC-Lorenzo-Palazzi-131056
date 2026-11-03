@@ -42,5 +42,12 @@ public class GameController {
     }
 
     public GameState getGameState() { return gameState; }
-
+    
+    public GameState setGameState(GameState gameState) {
+        if (gameState == null) {
+            throw new IllegalArgumentException("Lo stato del gioco non può essere nullo");
+        }
+        this.gameState = gameState;
+        return this.gameState;
+    }
 }
