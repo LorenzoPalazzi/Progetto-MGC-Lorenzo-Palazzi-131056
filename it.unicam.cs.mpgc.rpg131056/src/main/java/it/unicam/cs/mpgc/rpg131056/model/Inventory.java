@@ -2,7 +2,6 @@ package it.unicam.cs.mpgc.rpg131056.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Collections;
 
 public class Inventory {
     private final List<Item> items;

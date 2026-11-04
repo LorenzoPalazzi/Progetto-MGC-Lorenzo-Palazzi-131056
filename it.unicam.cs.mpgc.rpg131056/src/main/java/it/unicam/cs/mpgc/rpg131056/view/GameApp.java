@@ -5,6 +5,7 @@ import it.unicam.cs.mpgc.rpg131056.controller.GameController;
 import it.unicam.cs.mpgc.rpg131056.persistence.JsonSaveManager;
 import it.unicam.cs.mpgc.rpg131056.persistence.SaveManager;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -30,6 +31,8 @@ public class GameApp extends Application {
     private Button btnNextTurn;
     private Button btnSave;
     private Button btnLoad;
+    private Button btnExit;
+    private Button btnNewGame;
 
     private void modalitaIniziale() { 
         if (new File("savegame.json").exists()) {
@@ -125,6 +128,8 @@ public class GameApp extends Application {
         btnNextTurn = new Button("Passa Turno"); //creo i 3 bottoni che inserisco poi nell'HBox in basso
         btnSave = new Button("Salva Partita");
         btnLoad = new Button("Carica Partita");
+        btnExit = new Button("Esci");
+        btnNewGame = new Button("Nuova Partita");
         
         //---------- listener ----------
         btnNextTurn.setOnAction(e -> { //lambda expression
@@ -132,11 +137,14 @@ public class GameApp extends Application {
             
             var state = controller.getGameState();
             var player = state.getPlayer();
-            txtLog.appendText("Turno passato. Giorno: " + state.getCurrentDay() + 
-            ", Meteo: " + state.getCurrentWeather() + "\n");
+            txtLog.appendText("Turno passato. Giorno: " + state.getCurrentDay() + ", Meteo: " + state.getCurrentWeather() + "\n");
             if (player.getHealth() <= 0 || player.getHunger() >= 100 || player.getThirst() >= 100) {
                 modalita = Modalita.FINE_PARTITA;
-                txtLog.appendText("Game Over! Sei morto, non puoi proseguire.\n");    
+
+                txtLog.appendText("Game Over! Sei morto, non puoi proseguire.\n");
+                if (new File("savegame.json").delete()) {
+                    txtLog.appendText("La partita è stata eliminata.\n");
+                } 
             } else {
                 modalita = Modalita.IN_PARTITA;
             }
@@ -164,19 +172,38 @@ public class GameApp extends Application {
             } catch (Exception ex) {
                 txtLog.appendText(" Errore nel caricamento: file non trovato o corrotto: " + ex.getMessage() + "\n");
            }
-
     });
+
+        btnNewGame.setOnAction (e -> {
+            try {
+                var newGameState = new GameController().getGameState(); //crea un nuovo GameState con valori iniziali
+                controller.setGameState(newGameState);
+                modalita = Modalita.INIZIO_PARTITA;
+                txtLog.appendText("Nuova partita iniziata.\n");
+            } catch (Exception ex) {
+                txtLog.appendText(" Errore nell'avvio di una nuova partita: " + ex.getMessage() + "\n");
+            }
+            updateUI();
+        });
+        
+        btnExit.setOnAction(e -> {
+            txtLog.appendText("Uscita dal gioco.\n");
+            Platform.exit();
+        });
+
         /*getChildren inizialmente è vuoto perché HBox in basso non ha figli al suo interno, è vuoto
         * poi inserisco 3 figli, i 3 bottoni che ho creato, e mi vengono mostrati con lo stesso
         * ordine con cui li ho inseriti*/ 
-       box.getChildren().addAll(btnNextTurn, btnSave, btnLoad);
+       box.getChildren().addAll(btnNextTurn, btnSave, btnLoad, btnExit, btnNewGame);
        return box;
     }
 
     private void updateUI() { //fa da ponte tra la GUI e il backend del gioco
         var state = controller.getGameState();
         var player = state.getPlayer();
-        
+        var exitVisible = modalita == Modalita.PARTITA_SALVATA || modalita == Modalita.FINE_PARTITA;
+        var NewGameVisible = modalita == Modalita.FINE_PARTITA;
+
         lblDay.setText("Giorno: " + state.getCurrentDay()); //restituisce il giorno e il meteo istanziati in GameState
         lblWeather.setText("Meteo: " + state.getCurrentWeather());
         
@@ -185,7 +212,7 @@ public class GameApp extends Application {
         barHunger.setProgress(player.getHunger() / 100.0);
         barThirst.setProgress(player.getThirst() / 100.0);
         
-        //devo modificare qua sotto tutto lo pseudocodice della tabella di claude
+        //attivazione e disattivazione dei bottoni in base alla fasi di gioco
         btnNextTurn.setDisable(!(modalita == Modalita.AVVIO_CON_JSON || 
             modalita == Modalita.INIZIO_PARTITA || 
             modalita == Modalita.IN_PARTITA));
@@ -193,6 +220,12 @@ public class GameApp extends Application {
         btnSave.setDisable(!(modalita == Modalita.IN_PARTITA));
 
         btnLoad.setDisable(!(modalita == Modalita.AVVIO_CON_JSON || modalita == Modalita.PARTITA_SALVATA));
+
+        btnExit.setVisible(exitVisible);
+        btnExit.setManaged(exitVisible);
+
+        btnNewGame.setVisible(NewGameVisible);
+        btnNewGame.setManaged(NewGameVisible);
 }
 
     public static void main(String[] args) {
@@ -200,4 +233,3 @@ public class GameApp extends Application {
     }
 }
 
-//saveFile.delete(); --> IMPORTANTE PER DOPO
