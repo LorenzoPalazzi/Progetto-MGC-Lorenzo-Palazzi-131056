@@ -126,23 +126,27 @@ public class GameApp extends Application {
         btnSave = new Button("Salva Partita");
         btnLoad = new Button("Carica Partita");
         
+        //---------- listener ----------
         btnNextTurn.setOnAction(e -> { //lambda expression
             controller.nextTurn();
-            updateUI();
-
+            
             var state = controller.getGameState();
             var player = state.getPlayer();
-            txtLog.appendText("Turno passato. Giorno: " + 
-            state.getCurrentDay() + ", Meteo: " + state.getCurrentWeather() + "\n");
-            
+            txtLog.appendText("Turno passato. Giorno: " + state.getCurrentDay() + 
+            ", Meteo: " + state.getCurrentWeather() + "\n");
             if (player.getHealth() <= 0 || player.getHunger() >= 100 || player.getThirst() >= 100) {
-                txtLog.appendText("Game Over! Sei morto, non puoi proseguire.\n");
+                modalita = Modalita.FINE_PARTITA;
+                txtLog.appendText("Game Over! Sei morto, non puoi proseguire.\n");    
+            } else {
+                modalita = Modalita.IN_PARTITA;
             }
+            updateUI();
         });
 
         btnSave.setOnAction(e -> {
             try {
                 saveManager.save(controller.getGameState(), "savegame.json");
+                modalita = Modalita.PARTITA_SALVATA;
                 txtLog.appendText(" Partita salvata con successo.\n");
                 updateUI();
             } catch (Exception ex) {
@@ -154,6 +158,7 @@ public class GameApp extends Application {
             try {
                 var loadedState = saveManager.load("savegame.json");
                 controller.setGameState(loadedState);
+                modalita = Modalita.INIZIO_PARTITA;
                 updateUI();
                 txtLog.appendText(" Partita caricata con successo.\n");
             } catch (Exception ex) {
@@ -181,7 +186,13 @@ public class GameApp extends Application {
         barThirst.setProgress(player.getThirst() / 100.0);
         
         //devo modificare qua sotto tutto lo pseudocodice della tabella di claude
+        btnNextTurn.setDisable(!(modalita == Modalita.AVVIO_CON_JSON || 
+            modalita == Modalita.INIZIO_PARTITA || 
+            modalita == Modalita.IN_PARTITA));
         
+        btnSave.setDisable(!(modalita == Modalita.IN_PARTITA));
+
+        btnLoad.setDisable(!(modalita == Modalita.AVVIO_CON_JSON || modalita == Modalita.PARTITA_SALVATA));
 }
 
     public static void main(String[] args) {
