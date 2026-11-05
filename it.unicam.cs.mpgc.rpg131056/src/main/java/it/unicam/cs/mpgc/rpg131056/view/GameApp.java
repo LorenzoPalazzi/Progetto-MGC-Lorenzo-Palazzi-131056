@@ -1,7 +1,14 @@
 package it.unicam.cs.mpgc.rpg131056.view;
 
 import it.unicam.cs.mpgc.rpg131056.model.Modalita;
+import it.unicam.cs.mpgc.rpg131056.actions.Action;
+import it.unicam.cs.mpgc.rpg131056.actions.Drink;
+import it.unicam.cs.mpgc.rpg131056.actions.Eat;
+import it.unicam.cs.mpgc.rpg131056.actions.Fish;
+import it.unicam.cs.mpgc.rpg131056.actions.Rest;
+import it.unicam.cs.mpgc.rpg131056.actions.Scavenge;
 import it.unicam.cs.mpgc.rpg131056.controller.GameController;
+import it.unicam.cs.mpgc.rpg131056.controller.GameState;
 import it.unicam.cs.mpgc.rpg131056.persistence.JsonSaveManager;
 import it.unicam.cs.mpgc.rpg131056.persistence.SaveManager;
 import javafx.application.Application;
@@ -15,6 +22,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.io.File;
 
+
 public class GameApp extends Application {
     //la GUI si affida a questi due attributi per il caricamento e il funzionamento del gioco
     private GameController controller;
@@ -24,15 +32,23 @@ public class GameApp extends Application {
     // Componenti della GUI che dovremo aggiornare durante il gioco
     private Label lblDay; //etichette per giorno e meteo
     private Label lblWeather;
-    private ProgressBar barHealth; //barre di vita, fame e sete
+    private ProgressBar barHealth; //barre di vita, fame, sete ed energia
     private ProgressBar barHunger;
     private ProgressBar barThirst;
+    private ProgressBar barEnergy; 
     private TextArea txtLog; //un'area di testo multiriga dove poter scrivere a schermo ciò che succede nel gioco
+    //bottoni gestione partita
     private Button btnNextTurn;
     private Button btnSave;
     private Button btnLoad;
     private Button btnExit;
     private Button btnNewGame;
+    //bottoni per azioni giocatore
+    private Button btnRest;
+    private Button btnEat;
+    private Button btnDrink;
+    private Button btnScavenge;
+    private Button btnFish;
 
     private void modalitaIniziale() { 
         if (new File("savegame.json").exists()) {
@@ -103,6 +119,7 @@ public class GameApp extends Application {
         barHealth = new ProgressBar(1.0);
         barHunger = new ProgressBar(0.0);
         barThirst = new ProgressBar(0.0);
+        barEnergy = new ProgressBar(1.0);
 
         // Riga 0: Giorno e Meteo
 //        grid.add(lblDay, 0, 0);
@@ -118,10 +135,37 @@ public class GameApp extends Application {
         grid.add(new Label("Sete:"), 4, 1);
         grid.add(barThirst, 5, 1);
 
+        grid.add(new Label("Energia:"), 6, 1);
+        grid.add(barEnergy, 7, 1);
+
         return grid;
     }
 
-    private HBox createActionsPane() {
+    private VBox createActionsPane() {
+        //contenitore "globale"
+        VBox container = new VBox(10); //crea un contenitore verticale con distanza 10 pxl tra i bottoni
+        container.setAlignment(Pos.CENTER); //posiziona centralmente i bottoni
+        
+        //contenitore bottoni di azioni del gioco
+        HBox actionButtons = new HBox(10); //crea un contenitore orizzontale con distanza 10 pxl tra i bottoni
+        actionButtons.setAlignment(Pos.CENTER); //posiziona centralmente i bottoni
+
+        //comandi azionin di gioco
+        btnRest = new Button("Riposa");
+        btnEat = new Button("Mangia");
+        btnDrink = new Button("Bevi");
+        btnScavenge = new Button("Recupera Risorse");
+        btnFish = new Button("Pesca");
+
+        btnEat.setOnAction(e -> executeAction(new Eat()));
+        btnDrink.setOnAction(e -> executeAction(new Drink()));
+        btnRest.setOnAction(e -> executeAction(new Rest()));
+        btnFish.setOnAction(e -> executeAction(new Fish()));
+        btnScavenge.setOnAction(e -> executeAction(new Scavenge()));
+
+        actionButtons.getChildren().addAll(btnRest, btnEat, btnDrink, btnScavenge, btnFish);
+
+        //zona bottoni comandi di gioco
         HBox box = new HBox(10); //crea la barra inferiore
         box.setAlignment(Pos.CENTER); //la posiziona centralmente
 
@@ -138,7 +182,7 @@ public class GameApp extends Application {
             var state = controller.getGameState();
             var player = state.getPlayer();
             txtLog.appendText("Turno passato. Giorno: " + state.getCurrentDay() + ", Meteo: " + state.getCurrentWeather() + "\n");
-            if (player.getHealth() <= 0 || player.getHunger() >= 100 || player.getThirst() >= 100) {
+                if(player.isDead()) {
                 modalita = Modalita.FINE_PARTITA;
 
                 txtLog.appendText("Game Over! Sei morto, non puoi proseguire.\n");
@@ -175,15 +219,11 @@ public class GameApp extends Application {
     });
 
         btnNewGame.setOnAction (e -> {
-            try {
-                var newGameState = new GameController().getGameState(); //crea un nuovo GameState con valori iniziali
+                var newGameState = new GameState(); //crea un nuovo GameState con valori iniziali
                 controller.setGameState(newGameState);
                 modalita = Modalita.INIZIO_PARTITA;
                 txtLog.appendText("Nuova partita iniziata.\n");
-            } catch (Exception ex) {
-                txtLog.appendText(" Errore nell'avvio di una nuova partita: " + ex.getMessage() + "\n");
-            }
-            updateUI();
+                updateUI();
         });
         
         btnExit.setOnAction(e -> {
@@ -195,14 +235,36 @@ public class GameApp extends Application {
         * poi inserisco 3 figli, i 3 bottoni che ho creato, e mi vengono mostrati con lo stesso
         * ordine con cui li ho inseriti*/ 
        box.getChildren().addAll(btnNextTurn, btnSave, btnLoad, btnExit, btnNewGame);
-       return box;
+       
+       container.getChildren().addAll(actionButtons, box); //inserisce l'HBox con i bottoni in basso dentro al VBox principale
+       return container;
     }
+
+    private void executeAction(Action action) {
+        var player = controller.getGameState().getPlayer();
+        var inventory = controller.getGameState().getInventory();
+        try {
+            action.execute(player, inventory);
+            txtLog.appendText("Azione " + action.getName() + " eseguita con successo.\n");
+            
+            if (player.isDead()) {
+                txtLog.appendText("Game Over! Sei morto dopo l'azione.\n");
+                modalita = Modalita.FINE_PARTITA;
+            } else {
+                modalita = Modalita.IN_PARTITA;
+            }
+        } catch (IllegalStateException | IllegalArgumentException ex) {
+            txtLog.appendText("Impossibile eseguire " + action.getName() + ": " + ex.getMessage() + "\n");
+        }
+        updateUI();
+    }
+
 
     private void updateUI() { //fa da ponte tra la GUI e il backend del gioco
         var state = controller.getGameState();
         var player = state.getPlayer();
         var exitVisible = modalita == Modalita.PARTITA_SALVATA || modalita == Modalita.FINE_PARTITA;
-        var NewGameVisible = modalita == Modalita.FINE_PARTITA;
+        var newGameVisible = modalita == Modalita.FINE_PARTITA;
 
         lblDay.setText("Giorno: " + state.getCurrentDay()); //restituisce il giorno e il meteo istanziati in GameState
         lblWeather.setText("Meteo: " + state.getCurrentWeather());
@@ -211,6 +273,7 @@ public class GameApp extends Application {
         barHealth.setProgress(player.getHealth() / 100.0); //100.0 perché altrimenti la divisione di 2 interi da come resto 0, azzerando la barra
         barHunger.setProgress(player.getHunger() / 100.0);
         barThirst.setProgress(player.getThirst() / 100.0);
+        barEnergy.setProgress(player.getEnergy() / 100.0);
         
         //attivazione e disattivazione dei bottoni in base alla fasi di gioco
         btnNextTurn.setDisable(!(modalita == Modalita.AVVIO_CON_JSON || 
@@ -224,8 +287,8 @@ public class GameApp extends Application {
         btnExit.setVisible(exitVisible);
         btnExit.setManaged(exitVisible);
 
-        btnNewGame.setVisible(NewGameVisible);
-        btnNewGame.setManaged(NewGameVisible);
+        btnNewGame.setVisible(newGameVisible);
+        btnNewGame.setManaged(newGameVisible);
 }
 
     public static void main(String[] args) {

@@ -12,12 +12,7 @@ public class Food extends AbstractItem {
     }
 
     @Override
-    public ItemType getType() {
-        return ItemType.FOOD;
-    }
+    public ItemType getType() { return ItemType.FOOD; }
 
-    public int getHungerRestore() {
-        return hungerRestore;
-    }
+    public int getHungerRestore() { return hungerRestore; }
 }
-

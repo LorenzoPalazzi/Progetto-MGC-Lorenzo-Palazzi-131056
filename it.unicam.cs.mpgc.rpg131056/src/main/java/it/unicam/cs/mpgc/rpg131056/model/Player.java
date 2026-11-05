@@ -25,12 +25,12 @@ public class Player {
     }
 
     public boolean isAlive() {
-        return health > 0;
+        return !isDead();
     }
 
     public void consumeResorces(int hungerAmount, int thirstAmount, Weather weather) {
         if (hungerAmount >= 100 || thirstAmount >= 100) {
-            this.health = 0;
+            this.isDead();
             return;
         }
         if (this.health < 0) { this.health = 0; }
@@ -47,13 +47,18 @@ public class Player {
     }
 
     public void updateStats() {
-        if (this.hunger > 80) {
+        if (this.hunger > 65) {
             this.health = clamp(this.health - 5, 0, 100);
         }
-        if (this.thirst > 80) {
+        if (this.thirst > 75) {
             this.health = clamp(this.health - 15, 0, 100);
         }
+        this.energy = clamp(this.energy - 5, 0, 100);
     }
+
+    public boolean isDead() {
+        return this.health <= 0 || this.hunger >= 100 || this.thirst >= 100;
+    } 
 
     public void addEnergy(int amount) { this.energy = clamp(this.energy + amount, 0, 100); }
     public void reduceEnergy(int amount) { this.energy = clamp(this.energy - amount, 0, 100); }

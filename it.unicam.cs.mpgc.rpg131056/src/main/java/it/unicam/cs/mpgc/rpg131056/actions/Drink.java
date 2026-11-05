@@ -26,7 +26,7 @@ public class Drink implements Action {
         player.reduceThirst(acquaTrovata.getThirstRestore());
         inventory.removeItem(acquaTrovata);
     }
-
+    @Override 
     public String getName() {
         return "Bevi";
     }

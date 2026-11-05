@@ -33,7 +33,5 @@ public class Inventory {
         }
         return false;
     }
-    public List<Item> getItems() {
-        return new ArrayList<>(items);
-    }
+    public List<Item> getItems() { return new ArrayList<>(items); }
 }
