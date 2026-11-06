@@ -6,7 +6,5 @@ public class Material extends AbstractItem {
     }
 
     @Override
-    public ItemType getType() {
-        return ItemType.MATERIAL;
-    }
+    public ItemType getType() { return ItemType.MATERIAL; }
 }

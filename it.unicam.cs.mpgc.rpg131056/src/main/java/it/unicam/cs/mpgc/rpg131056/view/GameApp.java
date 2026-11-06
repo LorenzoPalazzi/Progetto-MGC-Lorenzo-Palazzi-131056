@@ -29,6 +29,7 @@ public class GameApp extends Application {
     private SaveManager saveManager;
     private Modalita modalita;
 
+    private int actionCount = 0; //massimo 3 azioni al giorno, dopo passa turno
     // Componenti della GUI che dovremo aggiornare durante il gioco
     private Label lblDay; //etichette per giorno e meteo
     private Label lblWeather;
@@ -38,7 +39,6 @@ public class GameApp extends Application {
     private ProgressBar barEnergy; 
     private TextArea txtLog; //un'area di testo multiriga dove poter scrivere a schermo ciò che succede nel gioco
     //bottoni gestione partita
-    private Button btnNextTurn;
     private Button btnSave;
     private Button btnLoad;
     private Button btnExit;
@@ -114,7 +114,7 @@ public class GameApp extends Application {
         // 0 = parte dalla riga 0 in alto
         // 6 = si estende su 6 colonne
         // 1 = occupa 1 riga in altezza
-        grid.add(topInfo, 0,0,6,1);
+        grid.add(topInfo, 0,0,8,1);
 
         barHealth = new ProgressBar(1.0);
         barHunger = new ProgressBar(0.0);
@@ -169,32 +169,12 @@ public class GameApp extends Application {
         HBox box = new HBox(10); //crea la barra inferiore
         box.setAlignment(Pos.CENTER); //la posiziona centralmente
 
-        btnNextTurn = new Button("Passa Turno"); //creo i 3 bottoni che inserisco poi nell'HBox in basso
         btnSave = new Button("Salva Partita");
         btnLoad = new Button("Carica Partita");
         btnExit = new Button("Esci");
         btnNewGame = new Button("Nuova Partita");
         
         //---------- listener ----------
-        btnNextTurn.setOnAction(e -> { //lambda expression
-            controller.nextTurn();
-            
-            var state = controller.getGameState();
-            var player = state.getPlayer();
-            txtLog.appendText("Turno passato. Giorno: " + state.getCurrentDay() + ", Meteo: " + state.getCurrentWeather() + "\n");
-                if(player.isDead()) {
-                modalita = Modalita.FINE_PARTITA;
-
-                txtLog.appendText("Game Over! Sei morto, non puoi proseguire.\n");
-                if (new File("savegame.json").delete()) {
-                    txtLog.appendText("La partita è stata eliminata.\n");
-                } 
-            } else {
-                modalita = Modalita.IN_PARTITA;
-            }
-            updateUI();
-        });
-
         btnSave.setOnAction(e -> {
             try {
                 saveManager.save(controller.getGameState(), "savegame.json");
@@ -234,10 +214,33 @@ public class GameApp extends Application {
         /*getChildren inizialmente è vuoto perché HBox in basso non ha figli al suo interno, è vuoto
         * poi inserisco 3 figli, i 3 bottoni che ho creato, e mi vengono mostrati con lo stesso
         * ordine con cui li ho inseriti*/ 
-       box.getChildren().addAll(btnNextTurn, btnSave, btnLoad, btnExit, btnNewGame);
+       box.getChildren().addAll(btnSave, btnLoad, btnExit, btnNewGame);
        
        container.getChildren().addAll(actionButtons, box); //inserisce l'HBox con i bottoni in basso dentro al VBox principale
        return container;
+    }
+
+    private void verifyEndGame() {
+        var player = controller.getGameState().getPlayer();
+        if (player.isDead()) {
+            modalita = Modalita.FINE_PARTITA;
+            txtLog.appendText("Game Over! Sei morto, non puoi proseguire.\n");
+            if (saveManager.deleteSaveFile("savegame.json")) {
+                txtLog.appendText("La partita è stata eliminata.\n");
+            }
+        } else {
+            modalita = Modalita.IN_PARTITA;
+        }
+    }
+
+    private void avanzaTurno() {
+        actionCount = 0; //resetta il contatore azioni al passaggio turno
+        controller.nextTurn();
+        var state = controller.getGameState();
+        var player = state.getPlayer();
+        txtLog.appendText("Turno passato. Giorno: " + state.getCurrentDay() + ", Meteo: " + state.getCurrentWeather() + "\n");
+        verifyEndGame();
+        updateUI();
     }
 
     private void executeAction(Action action) {
@@ -245,13 +248,22 @@ public class GameApp extends Application {
         var inventory = controller.getGameState().getInventory();
         try {
             action.execute(player, inventory);
-            txtLog.appendText("Azione " + action.getName() + " eseguita con successo.\n");
-            
-            if (player.isDead()) {
-                txtLog.appendText("Game Over! Sei morto dopo l'azione.\n");
-                modalita = Modalita.FINE_PARTITA;
+            if (action instanceof Scavenge scavengeAction) {
+                txtLog.appendText(scavengeAction.getUltimoEsito() + "\n");
             } else {
-                modalita = Modalita.IN_PARTITA;
+                txtLog.appendText("Azione " + action.getName() + " eseguita con successo.\n");
+            }
+            verifyEndGame();
+            if (modalita == Modalita.FINE_PARTITA) {
+                return; //se il giocatore è morto, non eseguire ulteriori azioni
+            }
+            actionCount++;
+            txtLog.appendText("Azioni eseguite oggi: " + actionCount + "/3\n");
+            if (actionCount >= 3) {
+                controller.nextTurn();
+                avanzaTurno();
+            } else {
+                updateUI();
             }
         } catch (IllegalStateException | IllegalArgumentException ex) {
             txtLog.appendText("Impossibile eseguire " + action.getName() + ": " + ex.getMessage() + "\n");
@@ -265,7 +277,7 @@ public class GameApp extends Application {
         var player = state.getPlayer();
         var exitVisible = modalita == Modalita.PARTITA_SALVATA || modalita == Modalita.FINE_PARTITA;
         var newGameVisible = modalita == Modalita.FINE_PARTITA;
-
+        boolean inGame = modalita == Modalita.AVVIO_CON_JSON || modalita == Modalita.INIZIO_PARTITA || modalita == Modalita.IN_PARTITA;
         lblDay.setText("Giorno: " + state.getCurrentDay()); //restituisce il giorno e il meteo istanziati in GameState
         lblWeather.setText("Meteo: " + state.getCurrentWeather());
         
@@ -276,19 +288,18 @@ public class GameApp extends Application {
         barEnergy.setProgress(player.getEnergy() / 100.0);
         
         //attivazione e disattivazione dei bottoni in base alla fasi di gioco
-        btnNextTurn.setDisable(!(modalita == Modalita.AVVIO_CON_JSON || 
-            modalita == Modalita.INIZIO_PARTITA || 
-            modalita == Modalita.IN_PARTITA));
-        
         btnSave.setDisable(!(modalita == Modalita.IN_PARTITA));
-
         btnLoad.setDisable(!(modalita == Modalita.AVVIO_CON_JSON || modalita == Modalita.PARTITA_SALVATA));
-
         btnExit.setVisible(exitVisible);
         btnExit.setManaged(exitVisible);
-
         btnNewGame.setVisible(newGameVisible);
         btnNewGame.setManaged(newGameVisible);
+        btnRest.setDisable(!(inGame));
+        btnEat.setDisable(!(inGame));
+        btnDrink.setDisable(!(inGame));
+        btnScavenge.setDisable(!(inGame));
+        btnFish.setDisable(!(inGame));
+
 }
 
     public static void main(String[] args) {

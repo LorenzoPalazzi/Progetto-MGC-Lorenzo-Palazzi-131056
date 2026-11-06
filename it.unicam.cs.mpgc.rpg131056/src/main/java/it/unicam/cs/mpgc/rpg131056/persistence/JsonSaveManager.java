@@ -1,17 +1,21 @@
 package it.unicam.cs.mpgc.rpg131056.persistence;
 
 import it.unicam.cs.mpgc.rpg131056.controller.GameState;
+import it.unicam.cs.mpgc.rpg131056.model.Item;
+import it.unicam.cs.mpgc.rpg131056.model.ItemAdapter;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.File;
 
 public class JsonSaveManager implements SaveManager {
     private final Gson gson;
 
     public JsonSaveManager () {
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(Item.class, new ItemAdapter()).create();
     }
 
     @Override
@@ -41,5 +45,14 @@ public class JsonSaveManager implements SaveManager {
             System.err.println("Errore nel caricamento del file: " + e.getMessage());
             return null;
         }
+    }
+
+    @Override 
+    public boolean deleteSaveFile(String path) {
+        File file = new File(path);
+        if (file.exists()) {
+            return file.delete();
+        }
+        return false;
     }
 }

@@ -10,13 +10,8 @@ public class Water extends AbstractItem{
         }
         this.thirstRestore = thirstRestore;
     }
-
     @Override
-    public ItemType getType() {
-        return ItemType.WATER;
-    }
-
-    public int getThirstRestore() {
-        return thirstRestore;
-    }
+    public ItemType getType() { return ItemType.WATER; }
+    
+    public int getThirstRestore() { return thirstRestore; }
 }

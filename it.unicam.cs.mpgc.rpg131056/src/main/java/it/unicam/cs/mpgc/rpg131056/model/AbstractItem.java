@@ -16,12 +16,8 @@ public abstract class AbstractItem implements Item {
     }
 
     @Override
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
 
     @Override
-    public double getWeight() {
-        return weight;
-    }
+    public double getWeight() { return weight; }
 }
