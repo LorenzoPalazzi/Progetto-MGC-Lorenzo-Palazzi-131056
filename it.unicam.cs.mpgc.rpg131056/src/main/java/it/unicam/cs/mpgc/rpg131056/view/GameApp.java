@@ -1,5 +1,6 @@
 package it.unicam.cs.mpgc.rpg131056.view;
 
+import it.unicam.cs.mpgc.rpg131056.model.Item;
 import it.unicam.cs.mpgc.rpg131056.model.Modalita;
 import it.unicam.cs.mpgc.rpg131056.actions.Action;
 import it.unicam.cs.mpgc.rpg131056.actions.Drink;
@@ -21,7 +22,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.io.File;
-
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class GameApp extends Application {
     //la GUI si affida a questi due attributi per il caricamento e il funzionamento del gioco
@@ -155,6 +157,19 @@ public class GameApp extends Application {
         box.setAlignment(Pos.TOP_CENTER);
         return box;
     }
+    private void updateInventory() {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+
+        //scorri l'inventario con gli oggetti e se il nome non c’è ancora, inseriscilo con 1; se c’è già, somma 1 al valore che ha
+        for (Item item : controller.getGameState().getInventory().getItems()) {
+        counts.merge(item.getName(), 1, Integer::sum);
+    }
+
+    lstInventory.getItems().clear();
+    for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+        lstInventory.getItems().add(entry.getKey() + " x" + entry.getValue()); //
+    }
+}
 
     private VBox createActionsPane() {
         //contenitore "globale"
@@ -313,6 +328,7 @@ public class GameApp extends Application {
         btnScavenge.setDisable(!(inGame));
         btnFish.setDisable(!(inGame));
 
+        updateInventory();
 }
 
     public static void main(String[] args) {
