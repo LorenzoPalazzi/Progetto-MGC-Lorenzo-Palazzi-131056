@@ -28,6 +28,7 @@ public class GameApp extends Application {
     private GameController controller;
     private SaveManager saveManager;
     private Modalita modalita;
+    private ListView<String> lstInventory;
 
     private int actionCount = 0; //massimo 3 azioni al giorno, dopo passa turno
     // Componenti della GUI che dovremo aggiornare durante il gioco
@@ -82,6 +83,10 @@ public class GameApp extends Application {
         * inserisce nel bordo inferiore ciò che è dichiarato dentro al metodo createActionsPane*/
         root.setBottom(createActionsPane());
 
+        VBox inventoryPane = createInventoryPane();
+        root.setRight(inventoryPane);
+        BorderPane.setMargin(inventoryPane, new Insets(10, 0, 10, 10)); // sopra, destra, sotto, sinistra
+
         // Inizializziamo i valori grafici con lo stato attuale del gioco
         updateUI();
 
@@ -121,9 +126,9 @@ public class GameApp extends Application {
         barThirst = new ProgressBar(0.0);
         barEnergy = new ProgressBar(1.0);
 
-        // Riga 0: Giorno e Meteo
-//        grid.add(lblDay, 0, 0);
-//        grid.add(lblWeather, 1, 0);
+        //Riga 0: Giorno e Meteo
+        //grid.add(lblDay, 0, 0);
+        //grid.add(lblWeather, 1, 0);
 
         // Riga 1: Barre di stato
         grid.add(new Label("Salute:"), 0, 1);
@@ -139,6 +144,16 @@ public class GameApp extends Application {
         grid.add(barEnergy, 7, 1);
 
         return grid;
+    }
+
+    private VBox createInventoryPane() {
+        Label lblTitle = new Label("Inventario");
+        lstInventory = new ListView<>();
+        lstInventory.setPrefWidth(200);
+
+        VBox box = new VBox(10, lblTitle, lstInventory);
+        box.setAlignment(Pos.TOP_CENTER);
+        return box;
     }
 
     private VBox createActionsPane() {
@@ -237,7 +252,6 @@ public class GameApp extends Application {
         actionCount = 0; //resetta il contatore azioni al passaggio turno
         controller.nextTurn();
         var state = controller.getGameState();
-        var player = state.getPlayer();
         txtLog.appendText("Turno passato. Giorno: " + state.getCurrentDay() + ", Meteo: " + state.getCurrentWeather() + "\n");
         verifyEndGame();
         updateUI();
@@ -260,7 +274,6 @@ public class GameApp extends Application {
             actionCount++;
             txtLog.appendText("Azioni eseguite oggi: " + actionCount + "/3\n");
             if (actionCount >= 3) {
-                controller.nextTurn();
                 avanzaTurno();
             } else {
                 updateUI();
