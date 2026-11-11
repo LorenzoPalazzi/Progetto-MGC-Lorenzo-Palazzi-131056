@@ -3,9 +3,11 @@ package it.unicam.cs.mpgc.rpg131056.view;
 import it.unicam.cs.mpgc.rpg131056.model.Item;
 import it.unicam.cs.mpgc.rpg131056.model.Modalita;
 import it.unicam.cs.mpgc.rpg131056.actions.Action;
+import it.unicam.cs.mpgc.rpg131056.actions.CookingFish;
 import it.unicam.cs.mpgc.rpg131056.actions.Drink;
 import it.unicam.cs.mpgc.rpg131056.actions.Eat;
 import it.unicam.cs.mpgc.rpg131056.actions.Fish;
+import it.unicam.cs.mpgc.rpg131056.actions.FishingRod;
 import it.unicam.cs.mpgc.rpg131056.actions.Rest;
 import it.unicam.cs.mpgc.rpg131056.actions.Scavenge;
 import it.unicam.cs.mpgc.rpg131056.controller.GameController;
@@ -22,6 +24,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.io.File;
+import java.net.CookieHandler;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -52,7 +55,9 @@ public class GameApp extends Application {
     private Button btnDrink;
     private Button btnScavenge;
     private Button btnFish;
-    
+    private Button btnCraftRod;
+    private Button btnCook;
+
     private void modalitaIniziale() { 
         if (new File("savegame.json").exists()) {
             modalita = Modalita.AVVIO_CON_JSON;
@@ -193,14 +198,18 @@ public class GameApp extends Application {
         btnDrink = new Button("Bevi");
         btnScavenge = new Button("Recupera Risorse");
         btnFish = new Button("Pesca");
+        btnCook = new Button("Cuoci pesce");
+        btnCraftRod = new Button("Crea canna da pesca");
 
         btnEat.setOnAction(e -> executeAction(new Eat()));
         btnDrink.setOnAction(e -> executeAction(new Drink()));
         btnRest.setOnAction(e -> executeAction(new Rest()));
         btnFish.setOnAction(e -> executeAction(new Fish()));
         btnScavenge.setOnAction(e -> executeAction(new Scavenge()));
+        btnCraftRod.setOnAction(e -> executeAction(new FishingRod()));
+        btnCook.setOnAction(e -> executeAction(new CookingFish()));
 
-        actionButtons.getChildren().addAll(btnRest, btnEat, btnDrink, btnScavenge, btnFish);
+        actionButtons.getChildren().addAll(btnRest, btnEat, btnDrink, btnScavenge, btnFish, btnCook, btnCraftRod);
 
         //zona bottoni comandi di gioco
         HBox box = new HBox(10); //crea la barra inferiore
@@ -310,9 +319,11 @@ public class GameApp extends Application {
     private void updateUI() { //fa da ponte tra la GUI e il backend del gioco
         var state = controller.getGameState();
         var player = state.getPlayer();
+        var inventory = state.getInventory();
         var exitVisible = modalita == Modalita.PARTITA_SALVATA || modalita == Modalita.FINE_PARTITA;
         var newGameVisible = modalita == Modalita.FINE_PARTITA;
         boolean inGame = modalita == Modalita.AVVIO_CON_JSON || modalita == Modalita.INIZIO_PARTITA || modalita == Modalita.IN_PARTITA;
+        boolean tooTired = player.getEnergy() < 20;
         lblDay.setText("Giorno: " + state.getCurrentDay()); //restituisce il giorno e il meteo istanziati in GameState
         lblWeather.setText("Meteo: " + state.getCurrentWeather());
         
@@ -321,6 +332,20 @@ public class GameApp extends Application {
         barHunger.setProgress(player.getHunger() / 100.0);
         barThirst.setProgress(player.getThirst() / 100.0);
         barEnergy.setProgress(player.getEnergy() / 100.0);
+
+        boolean haveRod = false;
+        boolean haveRowFish = false;
+        int countWood = 0;
+        int countFishingNet = 0;
+
+        for (Item item : inventory.getItems()) {
+            switch (item.getName()) {
+                case "Canna da Pesca" -> haveRod = true;
+                case "Pesce crudo" -> haveRowFish = true;
+                case "Legna" -> countWood++;
+                case "Rete" -> countFishingNet++; 
+            }
+        }
         
         //attivazione e disattivazione dei bottoni in base alla fasi di gioco
         btnSave.setDisable(!(modalita == Modalita.IN_PARTITA));
@@ -333,7 +358,17 @@ public class GameApp extends Application {
         btnEat.setDisable(!(inGame));
         btnDrink.setDisable(!(inGame));
         btnScavenge.setDisable(!(inGame));
-        btnFish.setDisable(!(inGame));
+        btnFish.setDisable(!inGame || tooTired || !haveRod);
+        
+        boolean createRod = inGame && !haveRod;
+        btnCraftRod.setVisible(createRod);
+        btnCraftRod.setManaged(createRod);
+        btnCraftRod.setDisable(countWood < 2 || countFishingNet < 1);
+
+        // Cuoci Pesce: visibile solo se possiedi almeno 1 Legna e 1 Pesce Crudo
+        boolean canCookFish = inGame && (countWood >= 1) && haveRowFish;
+        btnCook.setVisible(canCookFish);
+        btnCook.setManaged(canCookFish);
 
         updateInventory();
 }

@@ -15,7 +15,7 @@ public class Fish implements Action {
         }
         boolean haCanna = false;
         for (Item item : inventory.getItems()) { 
-            if ("Canna da pesca".equals(item.getName())){
+            if ("Canna da Pesca".equals(item.getName())){
                 haCanna = true;
                 break;
             }
