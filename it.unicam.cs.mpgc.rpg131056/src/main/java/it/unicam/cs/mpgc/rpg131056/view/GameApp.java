@@ -157,17 +157,24 @@ public class GameApp extends Application {
         box.setAlignment(Pos.TOP_CENTER);
         return box;
     }
+
+    /* Aggiorna il riquadro dell'inventario a destra dello schermo, in due fasi.
+    * 1) Conta gli oggetti: crea una mappa nome -> quantità (LinkedHashMap, per mantenere
+    * l'ordine di inserimento) e scorre l'inventario. merge() inserisce il nome con valore 1
+    * se non c'è ancora, altrimenti somma 1 alla quantità già presente.
+    * 2) Riempie la lista: la svuota con clear(), altrimenti a ogni aggiornamento le righe si accumulerebbero, (pesce x2, pesce x2 ecc…)
+    * poi scorre la mappa con entrySet() e aggiunge una riga per ogni voce nel formato "Pesce crudo x2".
+    * Viene richiamato alla fine di updateUI(), quindi si aggiorna dopo ogni azione, Carica e Nuova Partita. */
+
     private void updateInventory() {
         Map<String, Integer> counts = new LinkedHashMap<>();
-
         //scorri l'inventario con gli oggetti e se il nome non c’è ancora, inseriscilo con 1; se c’è già, somma 1 al valore che ha
         for (Item item : controller.getGameState().getInventory().getItems()) {
         counts.merge(item.getName(), 1, Integer::sum);
     }
-
-    lstInventory.getItems().clear();
-    for (Map.Entry<String, Integer> entry : counts.entrySet()) {
-        lstInventory.getItems().add(entry.getKey() + " x" + entry.getValue()); //
+        lstInventory.getItems().clear();
+        for (Map.Entry<String, Integer> entry : counts.entrySet()) {
+            lstInventory.getItems().add(entry.getKey() + " x" + entry.getValue()); //
     }
 }
 
@@ -295,8 +302,8 @@ public class GameApp extends Application {
             }
         } catch (IllegalStateException | IllegalArgumentException ex) {
             txtLog.appendText("Impossibile eseguire " + action.getName() + ": " + ex.getMessage() + "\n");
+            updateUI();
         }
-        updateUI();
     }
 
 
@@ -335,4 +342,3 @@ public class GameApp extends Application {
         launch(args);
     }
 }
-
