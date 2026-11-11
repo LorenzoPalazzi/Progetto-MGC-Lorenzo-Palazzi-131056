@@ -52,7 +52,7 @@ public class GameApp extends Application {
     private Button btnDrink;
     private Button btnScavenge;
     private Button btnFish;
-
+    
     private void modalitaIniziale() { 
         if (new File("savegame.json").exists()) {
             modalita = Modalita.AVVIO_CON_JSON;

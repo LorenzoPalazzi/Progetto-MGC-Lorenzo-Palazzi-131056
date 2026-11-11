@@ -28,7 +28,5 @@ public class Eat implements Action {
     }
 
     @Override
-    public String getName() {
-        return "Mangia";
-    }
+    public String getName() {return "Mangia";}
 }
