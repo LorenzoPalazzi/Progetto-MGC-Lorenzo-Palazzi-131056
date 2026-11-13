@@ -10,6 +10,7 @@ public class GameState {
     private Inventory inventory;
     private Weather currentWeather;
     private int currentDay;
+    private int actionCount;
 
     public GameState () {
         this.player = new Player();
@@ -40,4 +41,8 @@ public class GameState {
     public int getCurrentDay() { return currentDay; }
     public void setCurrentDay(int currentDay) { this.currentDay = currentDay; }
     public void advanceDay() { this.currentDay++; }
+    public int getActionCount() { return actionCount; }
+    public void setActionCount(int actionCount) { this.actionCount = actionCount; }
+    public void incrementActionCount() { this.actionCount++; }
+    public void resetActionCount() { this.actionCount = 0; }
 }
