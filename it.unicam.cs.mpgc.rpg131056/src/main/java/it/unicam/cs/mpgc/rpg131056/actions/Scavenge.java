@@ -23,6 +23,9 @@ public class Scavenge implements Action {
             throw new IllegalStateException("Energia insufficiente per raccogliere risorse! (almeno " + ENERGY_COST + " energia richiesta)");
         }
         player.reduceEnergy(ENERGY_COST);
+        player.increaseHunger(2);
+        player.increaseThirst(3);
+
 
         int esito = random.nextInt(4); //genera un numero casuale tra 0 e 2 (inclusi)
         switch (esito) {

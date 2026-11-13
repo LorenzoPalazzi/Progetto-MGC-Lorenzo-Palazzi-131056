@@ -27,6 +27,9 @@ public class Fish implements Action {
             throw new IllegalStateException("Energia insufficiente per pescare! (almeno " + ENERGY_COST + " energia richiesta)");
         }
         player.reduceEnergy(ENERGY_COST);
+        player.increaseHunger(2);
+        player.increaseThirst(3);
+        
         Food pesce = new Food ("Pesce crudo", 0.5, 20);
         inventory.addItem(pesce);
     }

@@ -69,4 +69,17 @@ public class Player {
     public int getHunger() { return hunger; }
     public int getThirst() { return thirst; }
     public int getEnergy() { return energy; }
+    public void increaseHunger(int amount) {
+    if (amount < 0) {
+        throw new IllegalArgumentException("L'aumento di fame non può essere negativo.");
+    }
+    this.hunger = Math.min(100, this.hunger + amount);
+}
+
+    public void increaseThirst(int amount) {
+    if (amount < 0) {
+        throw new IllegalArgumentException("L'aumento di sete non può essere negativo.");
+    }
+    this.thirst = Math.min(100, this.thirst + amount);
+    }
 }

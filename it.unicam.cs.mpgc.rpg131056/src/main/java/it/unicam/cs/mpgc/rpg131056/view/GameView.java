@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import it.unicam.cs.mpgc.rpg131056.controller.GameState;
+import it.unicam.cs.mpgc.rpg131056.model.Food;
 import it.unicam.cs.mpgc.rpg131056.model.Item;
 import it.unicam.cs.mpgc.rpg131056.model.Modalita;
 import javafx.geometry.HPos;
@@ -186,8 +187,19 @@ public class GameView {
  
         boolean haveRod = false;
         boolean haveRowFish = false;
+        boolean hasFood = false;
+        boolean hasWater = false;
         int countWood = 0;
         int countFishingNet = 0;
+
+        for (Item item : inventory.getItems()) {
+            if (item instanceof Food) {
+                hasFood = true;
+            }
+            if ("Acqua".equalsIgnoreCase(item.getName())) {
+                hasWater = true;
+            }
+        }
  
         for (Item item : inventory.getItems()) {
             switch (item.getName()) {
@@ -206,8 +218,8 @@ public class GameView {
         btnNewGame.setVisible(newGameVisible);
         btnNewGame.setManaged(newGameVisible);
         btnRest.setDisable(!inGame);
-        btnEat.setDisable(!inGame);
-        btnDrink.setDisable(!inGame);
+        btnEat.setDisable(!inGame || !hasFood);
+        btnDrink.setDisable(!inGame || !hasWater);
         btnScavenge.setDisable(!inGame);
         btnFish.setDisable(!inGame || tooTired || !haveRod);
  
