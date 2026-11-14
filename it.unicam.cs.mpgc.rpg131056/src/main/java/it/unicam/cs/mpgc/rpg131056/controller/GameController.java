@@ -5,8 +5,8 @@ import it.unicam.cs.mpgc.rpg131056.model.Weather;
 
 public class GameController {
     private GameState gameState;
-    private static final int DAILY_HUNGER_INCREASE = 12; // Consumo passivo basso
-    private static final int DAILY_THIRST_INCREASE = 15; // Consumo passivo basso
+    private static final int DAILY_HUNGER_INCREASE = 8; // Consumo passivo basso
+    private static final int DAILY_THIRST_INCREASE = 10; // Consumo passivo basso
 
     //per iniziare una nuova partita
     public GameController() {
@@ -36,9 +36,9 @@ public class GameController {
 
         gameState.advanceDay(); //faccio aumentare il giorno (cioè cambio di turno)
         if (gameState.getCurrentWeather() == Weather.SUNNY) {
-            thirstIncrease += 10;
+            thirstIncrease += 8;
         } else if (gameState.getCurrentWeather() == Weather.STORMY) {
-            hungerIncrease += 10;
+            hungerIncrease += 7;
         }
 
         player.increaseHunger(hungerIncrease);
