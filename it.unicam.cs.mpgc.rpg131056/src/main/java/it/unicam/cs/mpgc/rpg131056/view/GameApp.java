@@ -2,6 +2,7 @@ package it.unicam.cs.mpgc.rpg131056.view;
 import java.io.File;
 
 import it.unicam.cs.mpgc.rpg131056.actions.Action;
+import it.unicam.cs.mpgc.rpg131056.actions.CollectWater;
 import it.unicam.cs.mpgc.rpg131056.actions.CookingFish;
 import it.unicam.cs.mpgc.rpg131056.actions.Drink;
 import it.unicam.cs.mpgc.rpg131056.actions.Eat;
@@ -72,6 +73,8 @@ public class GameApp extends Application {
         view.onScavenge(() -> executeAction(new Scavenge()));
         view.onCraftRod(() -> executeAction(new FishingRod()));
         view.onCook(() -> executeAction(new CookingFish()));
+        view.onCollectWater(() -> executeAction(new CollectWater(controller.getGameState())));
+        
     }
 
     //ridisegna l'interfaccia con lo stato e la modalità attuali

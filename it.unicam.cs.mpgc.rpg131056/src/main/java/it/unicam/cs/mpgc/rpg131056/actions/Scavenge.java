@@ -27,19 +27,14 @@ public class Scavenge implements Action {
         player.increaseThirst(3);
 
 
-        int esito = random.nextInt(4); //genera un numero casuale tra 0 e 2 (inclusi)
+        int esito = random.nextInt(3); //genera un numero casuale tra 0 e 2 (inclusi)
         switch (esito) {
             case 0 -> {
-                Water water = new Water("Acqua", 0.5, WATER_RESTORE);
-                inventory.addItem(water);
-                ultimoEsito = "Hai trovato dell'acqua! (Ripristina " + WATER_RESTORE + " sete)";
-            }
-            case 1 -> {
                 Material wood = new Material("Legna", 1.0);
                 inventory.addItem(wood);
                 ultimoEsito = "Hai trovato della legna! (Peso: 1.0)";
             }
-            case 2 -> {
+            case 1 -> {
                 Material fishingNet = new Material("Rete", 0.2);
                 inventory.addItem(fishingNet);
                 ultimoEsito = "Hai trovato della rete!";

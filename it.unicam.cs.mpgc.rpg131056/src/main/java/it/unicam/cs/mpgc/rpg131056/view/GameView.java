@@ -7,6 +7,7 @@ import it.unicam.cs.mpgc.rpg131056.controller.GameState;
 import it.unicam.cs.mpgc.rpg131056.model.Food;
 import it.unicam.cs.mpgc.rpg131056.model.Item;
 import it.unicam.cs.mpgc.rpg131056.model.Modalita;
+import it.unicam.cs.mpgc.rpg131056.model.Weather;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -45,6 +46,7 @@ public class GameView {
     private Button btnFish;
     private Button btnCraftRod;
     private Button btnCook;
+    private Button btnCollectWater;
  
     public GameView() {
         root.setPadding(new Insets(15));
@@ -147,8 +149,9 @@ public class GameView {
         btnFish = new Button("Pesca");
         btnCook = new Button("Cuoci pesce");
         btnCraftRod = new Button("Crea canna da pesca");
+        btnCollectWater = new Button("Raccogli acqua");
  
-        actionButtons.getChildren().addAll(btnRest, btnEat, btnDrink, btnScavenge, btnFish, btnCook, btnCraftRod);
+        actionButtons.getChildren().addAll(btnRest, btnEat, btnDrink, btnScavenge, btnFish, btnCook, btnCraftRod, btnCollectWater);
  
         //riga dei bottoni di gestione della partita
         HBox box = new HBox(10);
@@ -175,7 +178,9 @@ public class GameView {
         boolean newGameVisible = modalita == Modalita.FINE_PARTITA;
         boolean inGame = modalita == Modalita.AVVIO_CON_JSON || modalita == Modalita.INIZIO_PARTITA || modalita == Modalita.IN_PARTITA;
         boolean tooTired = player.getEnergy() < 20;
- 
+        int requiredWaterEnergy = (state.getCurrentWeather() == Weather.RAINY || state.getCurrentWeather() == Weather.STORMY) ? 5 : 15;
+        boolean canCollectWater = state.getPlayer().getEnergy() >= requiredWaterEnergy;
+
         lblDay.setText("Giorno: " + state.getCurrentDay());
         lblWeather.setText("Meteo: " + state.getCurrentWeather());
  
@@ -227,6 +232,7 @@ public class GameView {
         btnCraftRod.setVisible(createRod);
         btnCraftRod.setManaged(createRod);
         btnCraftRod.setDisable(countWood < 2 || countFishingNet < 1);
+        btnCollectWater.setDisable(!inGame || !canCollectWater);
  
         // Cuoci Pesce: visibile solo se possiedi almeno 1 Legna e 1 Pesce Crudo
         boolean canCookFish = inGame && (countWood >= 1) && haveRowFish;
@@ -268,4 +274,5 @@ public class GameView {
     public void onFish(Runnable action) { btnFish.setOnAction(e -> action.run()); }
     public void onCraftRod(Runnable action) { btnCraftRod.setOnAction(e -> action.run()); }
     public void onCook(Runnable action) { btnCook.setOnAction(e -> action.run()); }
+    public void onCollectWater (Runnable action) { btnCollectWater.setOnAction(e -> action.run());}
 }
