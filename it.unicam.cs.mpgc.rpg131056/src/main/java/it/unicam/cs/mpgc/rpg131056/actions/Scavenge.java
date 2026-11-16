@@ -3,14 +3,13 @@ package it.unicam.cs.mpgc.rpg131056.actions;
 import it.unicam.cs.mpgc.rpg131056.model.Inventory;
 import it.unicam.cs.mpgc.rpg131056.model.Material;
 import it.unicam.cs.mpgc.rpg131056.model.Player;
-import it.unicam.cs.mpgc.rpg131056.model.Water;
+
 
 import java.util.Random;
 
 public class Scavenge implements Action {
 
     private final int ENERGY_COST = 20;
-    private static final int WATER_RESTORE = 20;
     private final Random random = new Random();
     private String ultimoEsito = "";
 
