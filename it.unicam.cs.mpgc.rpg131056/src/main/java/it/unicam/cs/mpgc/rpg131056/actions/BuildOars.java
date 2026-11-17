@@ -26,8 +26,8 @@ public class BuildOars implements Action {
             }
         }
 
-        if (woodToRemove.size() < 6) {
-            throw new IllegalStateException("Servono 6 unità di Legna per costruire i remi.");
+        if (woodToRemove.size() < 4) {
+            throw new IllegalStateException("Servono 4 unità di Legna per costruire i remi.");
         }
         for (Item wood : woodToRemove) {
             inventory.removeItem(wood);

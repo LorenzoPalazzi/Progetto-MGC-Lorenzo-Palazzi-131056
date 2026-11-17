@@ -230,7 +230,7 @@ public class GameView {
         btnRest.setDisable(!inGame);
         btnEat.setDisable(!inGame || !hasFood);
         btnDrink.setDisable(!inGame || !hasWater);
-        btnScavenge.setDisable(!inGame);
+        btnScavenge.setDisable(!inGame || player.getEnergy() < 20);
         btnFish.setDisable(!inGame || tooTired || !haveRod);
         btnBuildOars.setDisable(!inGame || countWood < 4);
         
