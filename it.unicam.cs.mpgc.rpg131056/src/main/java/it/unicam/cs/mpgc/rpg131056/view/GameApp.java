@@ -32,14 +32,8 @@ public class GameApp extends Application {
     private SaveManager saveManager;
     private GameView view;
     private Modalita modalita;
-
-    private void modalitaIniziale() {
-        if (new File(SAVE_FILE).exists()) {
-            modalita = Modalita.AVVIO_CON_JSON;
-        } else {
-            modalita = Modalita.INIZIO_PARTITA;
-        }
-    }
+    private StartMenuView startMenuView;
+    private Scene scene;
 
     @Override
     public void start(Stage primaryStage) {
@@ -47,20 +41,22 @@ public class GameApp extends Application {
         this.controller = new GameController();
         this.saveManager = new JsonSaveManager();
         this.view = new GameView();
-        modalitaIniziale();
+        this.startMenuView = new StartMenuView();
 
         collegaComandi();
+        collegaMenuIniziale();
 
-        // Inizializziamo i valori grafici con lo stato attuale del gioco
-        refresh();
-        if (modalita == Modalita.INIZIO_PARTITA) {
-            view.log("Obiettivo: raccogli 4 unità di Legna per costruire i remi e raggiungere l'isola!");        
-        }
-
-        Scene scene = new Scene(view.getRoot(), 850, 600);
+        this.scene = new Scene(startMenuView.getRoot(), 850, 600);
+        showStartMenu();
+        
         primaryStage.setTitle("Survival RPG - JavaFX");
         primaryStage.setScene(scene);
         primaryStage.show();
+    }
+
+        private void showStartMenu() {
+            startMenuView.setCanLoad(new File(SAVE_FILE).exists());
+            scene.setRoot(startMenuView.getRoot());
     }
 
     //dice alla view cosa fare quando l'utente preme ogni bottone
@@ -68,8 +64,9 @@ public class GameApp extends Application {
         view.onSave(this::saveGame);
         view.onLoad(this::loadGame);
         view.onNewGame(this::newGame);
-        view.onExit(this::exitGame);
-
+        //view.onExit(this::exitGame);
+        view.onExit(this::showStartMenu);
+        
         view.onEat(() -> executeAction(new Eat()));
         view.onDrink(() -> executeAction(new Drink()));
         view.onRest(() -> executeAction(new Rest()));
@@ -79,7 +76,18 @@ public class GameApp extends Application {
         view.onCook(() -> executeAction(new CookingFish()));
         view.onCollectWater(() -> executeAction(new CollectWater(controller.getGameState())));
         view.onBuildOars(() -> executeAction(new BuildOars()));
-        
+    }
+
+        private void collegaMenuIniziale() {
+        startMenuView.onNewGame(() -> {
+            scene.setRoot(view.getRoot());
+            newGame();
+        });
+        startMenuView.onLoadGame(() -> {
+            scene.setRoot(view.getRoot());
+            loadGame();
+        });
+        startMenuView.onExit(this::exitGame);
     }
 
     //ridisegna l'interfaccia con lo stato e la modalità attuali
