@@ -9,6 +9,7 @@ import it.unicam.cs.mpgc.rpg131056.model.Material;
 import it.unicam.cs.mpgc.rpg131056.model.Player;
 
 public class BuildOars implements Action {
+    private static final int REQUIRED_WOOD = 4;
 
     @Override
     public void execute(Player player, Inventory inventory) {
@@ -20,7 +21,7 @@ public class BuildOars implements Action {
         for (Item item : inventory.getItems()) {
             if ("Legna".equalsIgnoreCase(item.getName())) {
                 woodToRemove.add(item);
-                if (woodToRemove.size() == 6) {
+                if (woodToRemove.size() == REQUIRED_WOOD) {
                     break;
                 }
             }
