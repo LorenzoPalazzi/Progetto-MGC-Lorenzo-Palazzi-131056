@@ -35,7 +35,6 @@ public class GameView {
     private ListView<String> lstInventory;
     //bottoni gestione partita
     private Button btnSave;
-    private Button btnLoad;
     private Button btnExit;
     private Button btnNewGame;
     //bottoni per azioni giocatore
@@ -72,6 +71,8 @@ public class GameView {
     }
  
     public BorderPane getRoot() { return root; }
+
+    public void clearLog() { txtLog.clear(); }
  
     //scrive una riga nel registro eventi
     public void log(String line) { txtLog.appendText(line + "\n"); }
@@ -163,11 +164,10 @@ public class GameView {
         box.setAlignment(Pos.CENTER);
  
         btnSave = new Button("Salva Partita");
-        btnLoad = new Button("Carica Partita");
         btnExit = new Button("Esci");
         btnNewGame = new Button("Nuova Partita");
  
-        box.getChildren().addAll(btnSave, btnLoad, btnExit, btnNewGame);
+        box.getChildren().addAll(btnSave, btnExit, btnNewGame);
  
         container.getChildren().addAll(actionButtons, box);
         return container;
@@ -222,7 +222,7 @@ public class GameView {
  
         //attivazione e disattivazione dei bottoni in base alle fasi di gioco
         btnSave.setDisable(!(modalita == Modalita.IN_PARTITA));
-        btnLoad.setDisable(!(modalita == Modalita.AVVIO_CON_JSON || modalita == Modalita.PARTITA_SALVATA));
+
         btnExit.setVisible(exitVisible);
         btnExit.setManaged(exitVisible);
         btnNewGame.setVisible(newGameVisible);
@@ -232,7 +232,7 @@ public class GameView {
         btnDrink.setDisable(!inGame || !hasWater);
         btnScavenge.setDisable(!inGame || player.getEnergy() < 20);
         btnFish.setDisable(!inGame || tooTired || !haveRod);
-        btnBuildOars.setDisable(!inGame || countWood < 4);
+
         
         //crea canna da pesca
         boolean createRod = inGame && !haveRod;
@@ -276,7 +276,6 @@ public class GameView {
     // ---------- collegamento dei comandi (i listener vengono decisi da chi usa la view) ----------
  
     public void onSave(Runnable action) { btnSave.setOnAction(e -> action.run()); }
-    public void onLoad(Runnable action) { btnLoad.setOnAction(e -> action.run()); }
     public void onExit(Runnable action) { btnExit.setOnAction(e -> action.run()); }
     public void onNewGame(Runnable action) { btnNewGame.setOnAction(e -> action.run()); }
  

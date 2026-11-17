@@ -18,7 +18,6 @@ import it.unicam.cs.mpgc.rpg131056.model.Modalita;
 import it.unicam.cs.mpgc.rpg131056.persistence.SaveManager;
 import javafx.application.Application;
 import javafx.application.Platform;
-
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -62,9 +61,7 @@ public class GameApp extends Application {
     //dice alla view cosa fare quando l'utente preme ogni bottone
     private void collegaComandi() {
         view.onSave(this::saveGame);
-        view.onLoad(this::loadGame);
         view.onNewGame(this::newGame);
-        //view.onExit(this::exitGame);
         view.onExit(this::showStartMenu);
         
         view.onEat(() -> executeAction(new Eat()));
@@ -121,6 +118,7 @@ public class GameApp extends Application {
     }
 
     private void newGame() {
+        view.clearLog();
         var newGameState = new GameState(); //crea un nuovo GameState con valori iniziali
         controller.setGameState(newGameState);
         modalita = Modalita.INIZIO_PARTITA;
