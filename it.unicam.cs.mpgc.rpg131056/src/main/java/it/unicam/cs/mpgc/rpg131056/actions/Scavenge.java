@@ -29,14 +29,14 @@ public class Scavenge implements Action {
         int esito = random.nextInt(3); //genera un numero casuale tra 0 e 2 (inclusi)
         switch (esito) {
             case 0 -> {
-                Material wood = new Material("Legna", 1.0);
-                inventory.addItem(wood);
-                ultimoEsito = "Hai trovato della legna! (Peso: 1.0)";
-            }
-            case 1 -> {
                 Material fishingNet = new Material("Rete", 0.2);
                 inventory.addItem(fishingNet);
                 ultimoEsito = "Hai trovato della rete!";
+            }
+            case 1 -> {
+                Material wood = new Material("Legna", 1.0);
+                inventory.addItem(wood);
+                ultimoEsito = "Hai trovato della legna!";
             }
             default -> { ultimoEsito = "Non hai trovato nulla."; }
         }

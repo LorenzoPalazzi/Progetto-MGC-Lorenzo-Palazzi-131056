@@ -47,6 +47,7 @@ public class GameView {
     private Button btnCraftRod;
     private Button btnCook;
     private Button btnCollectWater;
+    private Button btnBuildOars;
  
     public GameView() {
         root.setPadding(new Insets(15));
@@ -150,8 +151,12 @@ public class GameView {
         btnCook = new Button("Cuoci pesce");
         btnCraftRod = new Button("Crea canna da pesca");
         btnCollectWater = new Button("Raccogli acqua");
+        btnBuildOars = new Button("Costruisci Remi");
  
-        actionButtons.getChildren().addAll(btnRest, btnEat, btnDrink, btnScavenge, btnFish, btnCook, btnCraftRod, btnCollectWater);
+        actionButtons.getChildren().addAll(
+            btnRest, btnEat, btnDrink, btnScavenge, btnFish, 
+            btnCook, btnCraftRod, btnCollectWater, btnBuildOars
+        );
  
         //riga dei bottoni di gestione della partita
         HBox box = new HBox(10);
@@ -227,7 +232,9 @@ public class GameView {
         btnDrink.setDisable(!inGame || !hasWater);
         btnScavenge.setDisable(!inGame);
         btnFish.setDisable(!inGame || tooTired || !haveRod);
- 
+        btnBuildOars.setDisable(!inGame || countWood < 4);
+        
+        //crea canna da pesca
         boolean createRod = inGame && !haveRod;
         btnCraftRod.setVisible(createRod);
         btnCraftRod.setManaged(createRod);
@@ -238,6 +245,12 @@ public class GameView {
         boolean canCookFish = inGame && (countWood >= 1) && haveRowFish;
         btnCook.setVisible(canCookFish);
         btnCook.setManaged(canCookFish);
+
+        //crea remi e ottieni la vittoria
+        boolean canCraftOars = inGame && countWood >= 4;
+        btnBuildOars.setVisible(canCraftOars);
+        btnBuildOars.setManaged(canCraftOars);
+        btnBuildOars.setDisable(!canCraftOars);
  
         updateInventory(state);
     }
@@ -275,4 +288,5 @@ public class GameView {
     public void onCraftRod(Runnable action) { btnCraftRod.setOnAction(e -> action.run()); }
     public void onCook(Runnable action) { btnCook.setOnAction(e -> action.run()); }
     public void onCollectWater (Runnable action) { btnCollectWater.setOnAction(e -> action.run());}
+    public void onBuildOars(Runnable action) { btnBuildOars.setOnAction(e -> action.run()); }
 }

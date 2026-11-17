@@ -2,6 +2,7 @@ package it.unicam.cs.mpgc.rpg131056.view;
 import java.io.File;
 
 import it.unicam.cs.mpgc.rpg131056.actions.Action;
+import it.unicam.cs.mpgc.rpg131056.actions.BuildOars;
 import it.unicam.cs.mpgc.rpg131056.actions.CollectWater;
 import it.unicam.cs.mpgc.rpg131056.actions.CookingFish;
 import it.unicam.cs.mpgc.rpg131056.actions.Drink;
@@ -52,6 +53,9 @@ public class GameApp extends Application {
 
         // Inizializziamo i valori grafici con lo stato attuale del gioco
         refresh();
+        if (modalita == Modalita.INIZIO_PARTITA) {
+            view.log("Obiettivo: raccogli 4 unità di Legna per costruire i remi e raggiungere l'isola!");        
+        }
 
         Scene scene = new Scene(view.getRoot(), 850, 600);
         primaryStage.setTitle("Survival RPG - JavaFX");
@@ -74,6 +78,7 @@ public class GameApp extends Application {
         view.onCraftRod(() -> executeAction(new FishingRod()));
         view.onCook(() -> executeAction(new CookingFish()));
         view.onCollectWater(() -> executeAction(new CollectWater(controller.getGameState())));
+        view.onBuildOars(() -> executeAction(new BuildOars()));
         
     }
 
@@ -112,6 +117,7 @@ public class GameApp extends Application {
         controller.setGameState(newGameState);
         modalita = Modalita.INIZIO_PARTITA;
         view.log("Nuova partita iniziata.");
+        view.log("Obiettivo: raccogli 4 unità di Legna per costruire i remi e raggiungere l'isola!");
         refresh();
     }
 
@@ -124,12 +130,20 @@ public class GameApp extends Application {
 
     private void verifyEndGame() {
         var player = controller.getGameState().getPlayer();
+        var state = controller.getGameState();
+        boolean hasOars = state.getInventory().getItems().stream().anyMatch(item -> "Remi".equalsIgnoreCase(item.getName()));
+
         if (player.isDead()) {
             modalita = Modalita.FINE_PARTITA;
             view.log("Game Over! Sei morto, non puoi proseguire.");
             if (saveManager.deleteSaveFile(SAVE_FILE)) {
                 view.log("La partita è stata eliminata.");
             }
+        } else if (hasOars) {
+            modalita = Modalita.FINE_PARTITA;
+            view.log("Vittoria! Hai costruito i remi e sei approdato sull'isola!");
+            if (saveManager.deleteSaveFile(SAVE_FILE))
+                view.log ("La partita completata è stata rimossa.");
         } else {
             modalita = Modalita.IN_PARTITA;
         }

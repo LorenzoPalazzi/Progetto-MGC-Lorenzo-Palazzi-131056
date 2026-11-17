@@ -15,9 +15,10 @@ public class Eat implements Action {
 
         Food ciboTrovato = null;
         for (Item item : inventory.getItems()) {
-            if (item instanceof Food) {
-                ciboTrovato = (Food) item;
-                break;
+            if (item instanceof Food food) {
+                if (ciboTrovato == null || food.getHungerRestore() > ciboTrovato.getHungerRestore()) {
+                    ciboTrovato = food;
+                }
             }
         }
         if (ciboTrovato == null) {
