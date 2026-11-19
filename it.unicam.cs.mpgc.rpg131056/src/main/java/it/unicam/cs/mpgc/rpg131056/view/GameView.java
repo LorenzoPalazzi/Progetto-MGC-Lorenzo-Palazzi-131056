@@ -22,22 +22,20 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class GameView {
-    private final BorderPane root = new BorderPane(); //divide lo schermo in 5 zone, N, S, E, O, Centro
- 
-    // Componenti della GUI che dovremo aggiornare durante il gioco
-    private Label lblDay; //etichette per giorno e meteo
+    private final BorderPane root = new BorderPane(); 
+    private Label lblDay; 
     private Label lblWeather;
-    private ProgressBar barHealth; //barre di vita, fame, sete ed energia
+    private ProgressBar barHealth; 
     private ProgressBar barHunger;
     private ProgressBar barThirst;
     private ProgressBar barEnergy;
-    private TextArea txtLog; //un'area di testo multiriga dove poter scrivere a schermo ciò che succede nel gioco
+    private TextArea txtLog; 
     private ListView<String> lstInventory;
-    //bottoni gestione partita
+
     private Button btnSave;
     private Button btnExit;
     private Button btnNewGame;
-    //bottoni per azioni giocatore
+
     private Button btnRest;
     private Button btnEat;
     private Button btnDrink;
@@ -51,23 +49,20 @@ public class GameView {
     public GameView() {
         root.setPadding(new Insets(15));
  
-        // 1. ZONA SUPERIORE: Status del giocatore
-        root.setTop(createHeaderPane()); //inserisce in alto la barra con le statistiche del giocatore
+        root.setTop(createHeaderPane()); 
  
-        // 2. ZONA CENTRALE: Registro eventi / Log
+
         txtLog = new TextArea("Benvenuto in Survival RPG!\nFai la tua prima mossa.\n");
-        txtLog.setEditable(false); //non permette all'utente di scrivere dentro la zona centrale
-        txtLog.setWrapText(true); //permette di andare a capo al testo se è troppo lungo su una sola riga
+        txtLog.setEditable(false);
+        txtLog.setWrapText(true); 
         root.setCenter(txtLog);
-        BorderPane.setMargin(txtLog, new Insets(10, 0, 10, 0)); //E e O sono settati a 0, N e S a 10
+        BorderPane.setMargin(txtLog, new Insets(10, 0, 10, 0));
  
-        // 3. ZONA INFERIORE: Pulsanti di azione
         root.setBottom(createActionsPane());
  
-        // 4. ZONA DESTRA: Inventario
         VBox inventoryPane = createInventoryPane();
         root.setRight(inventoryPane);
-        BorderPane.setMargin(inventoryPane, new Insets(10, 0, 10, 10)); // sopra, destra, sotto, sinistra
+        BorderPane.setMargin(inventoryPane, new Insets(10, 0, 10, 10)); 
     }
  
     public BorderPane getRoot() { return root; }
@@ -80,28 +75,20 @@ public class GameView {
     // ---------- creazione dei componenti ----------
  
     private GridPane createHeaderPane() {
-        GridPane grid = new GridPane(); //creo un nuovo GridPane chiamato grid
-        grid.setHgap(10); //Configura la spaziatura orizzontale e verticale tra le celle
+        GridPane grid = new GridPane(); 
+        grid.setHgap(10);
         grid.setVgap(10);
         grid.setAlignment(Pos.CENTER);
  
         lblDay = new Label("Giorno: 1");
         lblWeather = new Label("Meteo: SUNNY");
  
-        //crea lo spazio sopra con distanza 10 pxl tra l'etichetta del giorno e quella del meteo
         HBox topInfo = new HBox(10, lblDay, lblWeather);
  
-        //centra le etichette (topInfo) dentro l'HBox
         topInfo.setAlignment(Pos.CENTER);
  
-        //dice al gridpane di posizionare topInfo (cioè l'HBox) al centro
         GridPane.setHalignment(topInfo, HPos.CENTER);
  
-        //posiziona l'HBox nella griglia con questi valori:
-        // 0 = parte dalla colonna sinistra
-        // 0 = parte dalla riga 0 in alto
-        // 8 = si estende su 8 colonne (4 barre, ognuna con etichetta e barra)
-        // 1 = occupa 1 riga in altezza
         grid.add(topInfo, 0, 0, 8, 1);
  
         barHealth = new ProgressBar(1.0);
@@ -109,7 +96,6 @@ public class GameView {
         barThirst = new ProgressBar(0.0);
         barEnergy = new ProgressBar(1.0);
  
-        // Riga 1: Barre di stato
         grid.add(new Label("Salute:"), 0, 1);
         grid.add(barHealth, 1, 1);
  
@@ -136,11 +122,9 @@ public class GameView {
     }
  
     private VBox createActionsPane() {
-        //contenitore "globale"
-        VBox container = new VBox(10); //crea un contenitore verticale con distanza 10 pxl tra le due righe di bottoni
+        VBox container = new VBox(10); 
         container.setAlignment(Pos.CENTER);
  
-        //riga dei bottoni di azioni del gioco
         HBox actionButtons = new HBox(10);
         actionButtons.setAlignment(Pos.CENTER);
  
@@ -159,7 +143,6 @@ public class GameView {
             btnCook, btnCraftRod, btnCollectWater, btnBuildOars
         );
  
-        //riga dei bottoni di gestione della partita
         HBox box = new HBox(10);
         box.setAlignment(Pos.CENTER);
  
@@ -174,8 +157,7 @@ public class GameView {
     }
  
     // ---------- aggiornamento dei componenti ----------
- 
-    //fa da ponte tra la GUI e lo stato del gioco: riceve lo stato e la modalità e ridisegna tutto
+
     public void update(GameState state, Modalita modalita) {
         var player = state.getPlayer();
         var inventory = state.getInventory();
@@ -188,9 +170,8 @@ public class GameView {
 
         lblDay.setText("Giorno: " + state.getCurrentDay());
         lblWeather.setText("Meteo: " + state.getCurrentWeather());
- 
-        //le ProgressBar in JavaFX usano valori decimali tra 0.0 e 1.0, serve convertirle perché i valori di salute, fame, sete ed energia sono tra 0 e 100
-        barHealth.setProgress(player.getHealth() / 100.0); //100.0 perché altrimenti la divisione tra 2 interi restituisce 0, azzerando la barra
+
+        barHealth.setProgress(player.getHealth() / 100.0); 
         barHunger.setProgress(player.getHunger() / 100.0);
         barThirst.setProgress(player.getThirst() / 100.0);
         barEnergy.setProgress(player.getEnergy() / 100.0);
@@ -219,8 +200,7 @@ public class GameView {
                 case "Rete" -> countFishingNet++;
             }
         }
- 
-        //attivazione e disattivazione dei bottoni in base alle fasi di gioco
+
         btnSave.setDisable(!(modalita == Modalita.IN_PARTITA));
 
         btnExit.setVisible(exitVisible);
@@ -233,8 +213,6 @@ public class GameView {
         btnScavenge.setDisable(!inGame || player.getEnergy() < 20);
         btnFish.setDisable(!inGame || tooTired || !haveRod);
 
-        
-        //crea canna da pesca
         boolean createRod = inGame && !haveRod && countWood >= 2 && countFishingNet >= 1;
         btnCraftRod.setVisible(createRod);
         btnCraftRod.setManaged(createRod);
@@ -242,27 +220,23 @@ public class GameView {
         
         btnCollectWater.setDisable(!inGame || !canCollectWater);
  
-        // Cuoci Pesce: visibile solo se possiedi almeno 1 Legna e 1 Pesce Crudo
         boolean canCookFish = inGame && (countWood >= 1) && haveRowFish;
         btnCook.setVisible(canCookFish);
         btnCook.setManaged(canCookFish);
 
-        //crea remi e ottieni la vittoria
         boolean canCraftOars = inGame && countWood >= 4;
         btnBuildOars.setVisible(canCraftOars);
         btnBuildOars.setManaged(canCraftOars);
         btnBuildOars.setDisable(!canCraftOars);
  
         updateInventory(state);
+
+        hungerThirstColorBar(barHunger, player.getHunger());
+        hungerThirstColorBar(barThirst, player.getThirst());
+        energyHealthColorBar(barEnergy, player.getEnergy());
+        energyHealthColorBar(barHealth, player.getHealth());
     }
  
-    /* Aggiorna il riquadro dell'inventario a destra dello schermo, in due fasi.
-     * 1) Conta gli oggetti: crea una mappa nome -> quantità (LinkedHashMap, per mantenere
-     * l'ordine di inserimento) e scorre l'inventario. merge() inserisce il nome con valore 1
-     * se non c'è ancora, altrimenti somma 1 alla quantità già presente.
-     * 2) Riempie la lista: la svuota con clear(), altrimenti a ogni aggiornamento le righe si accumulerebbero (pesce x2, pesce x2 ecc…),
-     * poi scorre la mappa con entrySet() e aggiunge una riga per ogni voce nel formato "Pesce crudo x2".
-     * Viene richiamato alla fine di update(), quindi si aggiorna dopo ogni azione, Carica e Nuova Partita. */
     private void updateInventory(GameState state) {
         Map<String, Integer> counts = new LinkedHashMap<>();
         for (Item item : state.getInventory().getItems()) {
@@ -289,4 +263,24 @@ public class GameView {
     public void onCook(Runnable action) { btnCook.setOnAction(e -> action.run()); }
     public void onCollectWater (Runnable action) { btnCollectWater.setOnAction(e -> action.run());}
     public void onBuildOars(Runnable action) { btnBuildOars.setOnAction(e -> action.run()); }
+
+    private void hungerThirstColorBar(ProgressBar bar, double value) {
+        if (value > 80) {
+            bar.setStyle("-fx-accent: #e74c3c;"); 
+        } else if (value > 60) {
+            bar.setStyle("-fx-accent: #f39c12;"); 
+        } else {
+            bar.setStyle(""); 
+        }
+    }
+    
+    private void energyHealthColorBar(ProgressBar bar, double value) {
+        if (value <= 20) {
+            bar.setStyle("-fx-accent: #e74c3c;");  
+        } else if (value <= 40) {
+            bar.setStyle("-fx-accent: #f39c12;"); 
+        } else {
+            bar.setStyle(""); 
+        }
+    }
 }

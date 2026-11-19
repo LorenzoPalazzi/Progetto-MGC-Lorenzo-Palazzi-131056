@@ -36,7 +36,7 @@ public class GameApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Inizializziamo il controller, la persistenza e l'interfaccia
+        // Inizializzazione del controller, della persistenza e dell'interfaccia
         this.controller = new GameController();
         this.saveManager = new JsonSaveManager();
         this.view = new GameView();
@@ -58,7 +58,6 @@ public class GameApp extends Application {
             scene.setRoot(startMenuView.getRoot());
     }
 
-    //dice alla view cosa fare quando l'utente preme ogni bottone
     private void collegaComandi() {
         view.onSave(this::saveGame);
         view.onNewGame(this::newGame);
@@ -87,7 +86,6 @@ public class GameApp extends Application {
         startMenuView.onExit(this::exitGame);
     }
 
-    //ridisegna l'interfaccia con lo stato e la modalità attuali
     private void refresh() {
         view.update(controller.getGameState(), modalita);
     }
@@ -119,7 +117,7 @@ public class GameApp extends Application {
 
     private void newGame() {
         view.clearLog();
-        var newGameState = new GameState(); //crea un nuovo GameState con valori iniziali
+        var newGameState = new GameState(); 
         controller.setGameState(newGameState);
         modalita = Modalita.INIZIO_PARTITA;
         view.log("Nuova partita iniziata.");

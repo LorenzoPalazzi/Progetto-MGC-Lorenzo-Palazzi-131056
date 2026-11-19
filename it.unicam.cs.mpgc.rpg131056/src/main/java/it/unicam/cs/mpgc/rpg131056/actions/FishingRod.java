@@ -14,7 +14,6 @@ public class FishingRod implements Action {
         List<Item> legnaTrovata = new ArrayList<>();
         Item reteTrovata = null;
 
-        // Ricerca dei materiali necessari nell'inventario
         for (Item item : inventory.getItems()) {
             if (item.getName().equals("Legna") && legnaTrovata.size() < 2) {
                 legnaTrovata.add(item);
@@ -23,12 +22,10 @@ public class FishingRod implements Action {
             }
         }
 
-        // Se le risorse non bastano, l'azione fallisce
         if (legnaTrovata.size() < 2 || reteTrovata == null) {
             throw new IllegalStateException("Risorse insufficienti per la canna da pesca! Servono 2 Legna e 1 Rete.");
         }
 
-        // Consumo dei materiali e creazione della Canna
         for (Item legna : legnaTrovata) {
             inventory.removeItem(legna);
         }

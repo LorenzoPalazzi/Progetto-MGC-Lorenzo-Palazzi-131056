@@ -15,7 +15,6 @@ public class CookingFish implements Action{
         Item legna = null;
         Item pesceCrudo = null;
 
-        // Cerca nell'inventario 1 unità di Legna e 1 Pesce crudo
         for (Item item : inventory.getItems()) {
             if ("Legna".equals(item.getName()) && legna == null) {
                 legna = item;
@@ -23,17 +22,14 @@ public class CookingFish implements Action{
                 pesceCrudo = item;
             }
         }
-
-        // Se uno dei due manca, la cottura non può avvenire
+        
         if (legna == null || pesceCrudo == null) {
             throw new IllegalStateException("Per cucinare servono 1 Legna e 1 Pesce crudo.");
         }
 
-        // Rimuove gli ingredienti usati
         inventory.removeItem(legna);
         inventory.removeItem(pesceCrudo);
 
-        // Aggiunge il pesce cotto (valore nutrizionale superiore)
         inventory.addItem(new Food("Pesce cotto", 0.5, 40));
     }
 
