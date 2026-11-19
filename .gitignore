@@ -20,4 +20,6 @@ gradle-app.setting
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
+.DS_Store
+**/.DS_Store
 savegame.json

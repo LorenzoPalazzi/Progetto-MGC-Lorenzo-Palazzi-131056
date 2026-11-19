@@ -235,10 +235,11 @@ public class GameView {
 
         
         //crea canna da pesca
-        boolean createRod = inGame && !haveRod;
+        boolean createRod = inGame && !haveRod && countWood >= 2 && countFishingNet >= 1;
         btnCraftRod.setVisible(createRod);
         btnCraftRod.setManaged(createRod);
-        btnCraftRod.setDisable(countWood < 2 || countFishingNet < 1);
+        btnCraftRod.setDisable(!createRod);
+        
         btnCollectWater.setDisable(!inGame || !canCollectWater);
  
         // Cuoci Pesce: visibile solo se possiedi almeno 1 Legna e 1 Pesce Crudo
