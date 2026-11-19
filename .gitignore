@@ -22,4 +22,5 @@ gradle-app.setting
 
 .DS_Store
 **/.DS_Store
+.vscode/
 savegame.json

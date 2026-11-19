@@ -34,7 +34,7 @@ dependencies {
 
 
 application {
-    mainClass.set("it.unicam.cs.mpgc.rpg123456.App")
+    mainClass.set("it.unicam.cs.mpgc.rpg131056.view.AppLauncher")
 }
 
 tasks.test {
