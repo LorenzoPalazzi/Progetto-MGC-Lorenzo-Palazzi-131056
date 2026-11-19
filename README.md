@@ -34,7 +34,7 @@ Il codice del gioco separa la logica di sopravvivenza dall'interfaccia, seguendo
 * **`persistence`** — Gestisce il salvataggio e il caricamento della partita tramite l'interfaccia `SaveManager` e la sua implementazione basata su Gson (`JsonSaveManager`), disaccoppiando la logica di gioco dal formato di archiviazione.
 > 👉 Per approfondire il ruolo delle singole classi, la gestione dei salvataggi e le possibilità di estensione futura, consulta la **Wiki** del repository.
 
-## 🤖 Tecnologie AI
+## 🤖 Uso di Tecnologie AI
 Durante lo sviluppo del progetto sono stati utilizzati strumenti di intelligenza artificiale come supporto:
 * **Revisione dell'architettura software** — analisi e miglioramento della separazione delle responsabilità tra i package (`model`, `actions`, `controller`, `view`, `persistence`) in linea con il pattern MVC e i principi SOLID.
 * **Debugging** — supporto nell'individuazione e nella risoluzione di errori di compilazione, gestione della serializzazione JSON e anomalie nella logica di gioco.
