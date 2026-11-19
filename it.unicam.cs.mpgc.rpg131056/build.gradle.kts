@@ -9,12 +9,12 @@ version = "1.0-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
 javafx {
-    version = "21"
+    version = "25"
     modules = listOf("javafx.controls")
 }
 
@@ -23,13 +23,13 @@ repositories {
 }
 
 dependencies {
-
-    implementation("com.google.code.gson:gson:2.10.1")
+    
+    implementation("com.google.code.gson:gson:2.10.1")  
     implementation("org.openjfx:javafx-controls:21")
-
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 
