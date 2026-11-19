@@ -39,6 +39,7 @@ Durante lo sviluppo del progetto sono stati utilizzati strumenti di intelligenza
 * **Revisione dell'architettura software** — analisi e miglioramento della separazione delle responsabilità tra i package (`model`, `actions`, `controller`, `view`, `persistence`) in linea con il pattern MVC e i principi SOLID.
 * **Debugging** — supporto nell'individuazione e nella risoluzione di errori di compilazione, gestione della serializzazione JSON e anomalie nella logica di gioco.
 * **Configurazione dell'ambiente di build** — assistenza nell'aggiornamento e nell'allineamento di `build.gradle.kts` e del Gradle Wrapper per **Java 25**, **JavaFX 25** e **Gradle 9.1.0**.
+* **Scrittura dei test automatici** — supporto nella generazione della suite di unit test con **JUnit 5** (nella classe `SurvivalGameTest`) per verificare la logica di dominio, le azioni e la persistenza JSON, successivamente revisionata e validata.
 * **Stesura della documentazione** — supporto nella redazione, organizzazione e formattazione del `README.md` e della Wiki del repository.
 
 **Ogni proposta fornita dall'AI — riguardante frammenti di codice, soluzioni tecniche o migliorie — è stata attentamente revisionata e validata da me prima di essere integrata. L'intelligenza artificiale ha svolto quindi un ruolo prettamente ausiliario, mentre io ho sempre mantenuto il pieno controllo sulla progettazione e sull'implementazione del progetto.**
